@@ -7,8 +7,14 @@
 //
 
 import UIKit
+import CoreData
 
 class MyMoviesTableViewController: UITableViewController {
+    
+    let movieController = MovieController()
+    
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
