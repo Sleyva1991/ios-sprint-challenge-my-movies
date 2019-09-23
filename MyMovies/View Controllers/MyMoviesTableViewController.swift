@@ -15,11 +15,11 @@ class MyMoviesTableViewController: UITableViewController {
     
     lazy var fetchResultsController: NSFetchedResultsController<Movie> = {
         let fetchRequest: NSFetchRequest<Movie> = Movie.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "", ascending: true)]
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "hasWatched", ascending: true)]
         
         let frc = NSFetchedResultsController(fetchRequest: fetchRequest,
                                              managedObjectContext: CoreDataStack.shared.mainContext,
-                                             sectionNameKeyPath: "",
+                                             sectionNameKeyPath: "hasWatched",
                                              cacheName: nil)
         
         frc.delegate = self
@@ -67,9 +67,9 @@ class MyMoviesTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MyMovieCell", for: indexPath)
 
-        let task = fetchResultsController.object(at: indexPath)
+        let movie = fetchResultsController.object(at: indexPath)
         
-        //cell.textLabel?.text = movie.title
+        cell.textLabel?.text = movie.title
 
         return cell
     }
@@ -82,10 +82,10 @@ class MyMoviesTableViewController: UITableViewController {
 
     
     // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             
-            let task = fetchResultsController.object(at: indexPath)
+            let movie = fetchResultsController.object(at: indexPath)
             
             movieController.delete(movie: movie)
         }    
@@ -108,24 +108,24 @@ extension MyMoviesTableViewController: NSFetchedResultsControllerDelegate {
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        tableView.endUpdate()
+        tableView.endUpdates()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
         case .insert:
             guard let newIndexPath = newIndexPath else { return }
-            tableView.insertRow(at: [newIndexPath], with: .automatic)
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
         case .delete:
             guard let indexPath = indexPath else { return }
-            tableView.deleteRows(at: [indexPath], with: .atomatic)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         case .move:
             guard let indexPath = indexPath,
             let newIndexPath = newIndexPath else { return }
             tableView.moveRow(at: indexPath, to: newIndexPath)
         case .update:
             guard let indexPath = indexPath else { return }
-            tableView.reloadRow(at: [indexPath], with: .automatic)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         @unknown default:
             return
         }

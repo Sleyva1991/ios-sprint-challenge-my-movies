@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreData
 
 enum HTTPMethod: String {
     case get = "GET"
@@ -23,8 +24,8 @@ class MovieController {
     
     func put(movie: Movie, completion: @escaping () -> Void = { }) {
         
-        let identifier = movie.identrifier ?? UUID()
-        movie.identrifier = identifier
+        let identifier = movie.identifier ?? UUID()
+        movie.identifier = identifier
         
         let requestURL = baseURL2
             .appendingPathComponent(identifier.uuidString)
@@ -89,7 +90,7 @@ class MovieController {
     
     func updateMovies(with representations: [MovieRepresentation]) {
         
-        let identifiersToFetch = representations.compactMap({UUID(uuidString: $0.identifier) })
+        let identifiersToFetch = representations.compactMap({ $0.identifier })
         
         let representationsByID = Dictionary(uniqueKeysWithValues: zip(identifiersToFetch, representations))
         
@@ -109,12 +110,12 @@ class MovieController {
                     let representation = representationsByID[identifier] else { continue }
                 
                 movie.title = representation.title
-                movie.hasWatched = representatoin.hasWatched
+                movie.hasWatched = representation.hasWatched ?? false
                 
                 tasksToCreate.removeValue(forKey: identifier)
             }
             
-            for representation in tasksToCreate.value {
+            for representation in tasksToCreate.values {
                 Movie(movieRepresentation: representation, context: context)
             }
             CoreDataStack.shared.saveToPersistentStore()
